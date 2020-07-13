@@ -2,7 +2,7 @@
 
 This application is capable of building the model, save it for future purpose, without writing a single piece of code! 
 <br>
-A special library, `Streamlit` is used to develop the application's interface. The documentation can be found [here](https://www.streamlit.io/)
+A special library, `Streamlit` is used to develop the application's interface. The documentation can be found [here](https://docs.streamlit.io/en/stable/)
 
 ### 🦾 Usage
 
