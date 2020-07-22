@@ -1,0 +1,5 @@
+graphviz==0.14
+numpy==1.18.1
+pandas==1.0.3
+scikit-learn==0.22.1
+streamlit==0.61.0
