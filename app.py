@@ -10,12 +10,14 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import tree
+from sklearn import metrics
 import graphviz
 import pickle
 
@@ -142,12 +144,52 @@ if uploaded_file is not None:
 
     # choosing the model and params
     model_name = st.selectbox('Select the model',
-                            ['Logistic Regression', 'K-NN', 'SVM', 'Naive Bayes', 'Decision tree', 'Random forest'],
-                            0)
+                            ['Linear Regression','Logistic Regression', 'K-NN', 'SVM', 'Naive Bayes', 'Decision tree', 'Random forest'],
+                            )
 
     st.subheader(model_name)
+    if model_name == 'Linear Regression':
+        copy_x =  st.sidebar.selectbox('copy_X',['true','false'])
+        intercept =  st.sidebar.selectbox('fit_intercept',['true','false'])
+        n_jobs = st.sidebar.number_input('n_jobs',-1)
+        linearr_model = LinearRegression(copy_X=copy_x,fit_intercept=intercept,n_jobs=n_jobs)
+        #print(linearr_model.get_params().keys())
+        try:
+            linearr_model.fit(X_train,y_train)
+        #    linear_model.set_params(C=c_param, solver=solver_param, max_iter=max_iter_param, random_state=43)
+        #    acc = linearr_model.score(X_test,y_test);
+            y_pred = linearr_model.predict(X_test)
+            e1 = metrics.mean_absolute_error(y_test,y_pred)
+            acc1 =100-e1
+            e2 = metrics.mean_squared_error(y_test,y_pred)
+            acc2 = 100-e2
+            e3 = np.sqrt(e2)
+            acc3 =100-e3
+            accu = st.selectbox('select the accuracy type',['mean_absolute_error','mean_squared_error'
+            ,'square_mean_absolute_error'])
+            if accu == 'mean_absolute_error':
+                acc = acc1
+            elif accu == 'mean_absolute_error':
+                acc=acc2
+            else:
+                acc=acc3
+            if acc > 0.9:
+                st.success('Accuracy = {:.4f}%'.format(acc))
+            elif acc > 0.8:
+                st.info('Accuracy = {:.4f}%'.format(acc))
+            elif acc > 0.7:
+                st.warning('Accuracy = {:.4f}%'.format(acc))
+            else:
+                st.error('Accuracy = {:.4f}%'.format(acc))
 
-    if model_name == 'Logistic Regression':
+            if st.button('Save model'):
+                saved_model = pickle.dumps(linearr_model)
+                st.success('Model saved successfully')
+                load_model()
+                st.balloons()
+        except :
+            st.error('There is some error')
+    elif model_name == 'Logistic Regression':
 
         c_param = st.sidebar.number_input('C', min_value=0.2, max_value=2.0)
         solver_param = st.sidebar.selectbox('solver', ['liblinear', 'lbfgs', 'saga'], 0)
@@ -156,7 +198,6 @@ if uploaded_file is not None:
         logistic_model = LogisticRegression(C=c_param, solver=solver_param, max_iter=max_iter_param, random_state=43)
         try:
             logistic_model.fit(X_train,y_train)
-
             logistic_pred = logistic_model.predict(X_test)
             st.write(confusion_matrix(y_test,logistic_pred))
             acc = accuracy_score(y_test,logistic_pred)
@@ -177,7 +218,6 @@ if uploaded_file is not None:
                 st.balloons()
         except:
             st.error('There is some error')
-
     elif model_name == 'K-NN':
 
         n_neigh_param = st.sidebar.slider('n_neighbors', min_value=2, max_value=20, value=5)
@@ -333,4 +373,3 @@ if uploaded_file is not None:
                 st.balloons()
         except:
             st.error('There is some error')
-
